@@ -6,9 +6,11 @@ use App\Filament\Resources\HomeServiceResource\Pages;
 use App\Filament\Resources\HomeServiceResource\RelationManagers;
 use App\Models\HomeService;
 use Filament\Forms;
+use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -23,7 +25,45 @@ class HomeServiceResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Fieldset::make('Details')
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->maxLength(255)
+                            ->required(),
+                        Forms\Components\FileUpload::make('thumbnail')
+                            ->required()
+                            ->image(),
+                        Forms\Components\TextInput::make('price')
+                            ->required()
+                            ->numeric()
+                            ->prefix('IDR'),
+                        Forms\Components\TextInput::make('duration')
+                            ->required()
+                            ->numeric()
+                            ->prefix('Hours'),
+                    ]),
+                Fieldset::make('Additional')
+                    ->schema([
+                        Forms\Components\Repeater::make('benefits')
+                            ->relationship('benefits')
+                            ->schema([
+                                Forms\Components\TextInput::make('name')
+                                    ->required(),
+                            ]),
+                        Forms\Components\Textarea::make('about')
+                            ->required(),
+                        Forms\Components\Select::make('is_popular')
+                            ->options([
+                                true => 'Popular',
+                                false => 'Not Popular',
+                            ])
+                            ->required(),
+                        Forms\Components\Select::make('category_id')
+                            ->relationship('category', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->required(),
+                    ]),
             ]);
     }
 
@@ -31,13 +71,30 @@ class HomeServiceResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\ImageColumn::make('thumbnail'),
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('category.name'),
+                Tables\Columns\IconColumn::make('is_popular')
+                    ->boolean()
+                    ->trueColor('success')
+                    ->falseColor('danger')
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->label('Popular'),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
+                SelectFilter::make('category_id')
+                    ->label('Category')
+                    ->relationship('category', 'name')
+                    ->preload()
+                    ->searchable(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
