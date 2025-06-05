@@ -21,7 +21,7 @@ class BookingTransactionResource extends Resource
 {
     protected static ?string $model = BookingTransaction::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-book-open';
 
     public static function updateTotals(Get $get, Set $set): void
     {
