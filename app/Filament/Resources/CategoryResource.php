@@ -44,8 +44,7 @@ class CategoryResource extends Resource
                 ImageColumn::make('photo'),
                 TextColumn::make('name')
                     ->sortable()
-                    ->searchable()
-                    ->preload(),
+                    ->searchable(),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
