@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\CategoryApiResource;
 use App\Models\Category;
+use App\Models\HomeService;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
@@ -22,8 +24,11 @@ class CategoryController extends Controller
 
     public function show(Category $category)
     {
-        $category->load('homeServices');
+        $category->load('homeServices','popularServices');
+        $category->loadCount('homeServices');
 
         return new CategoryApiResource($category);
     }
+
+
 }
